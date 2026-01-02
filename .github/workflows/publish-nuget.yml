@@ -16,13 +16,13 @@ jobs:
         dotnet-version: '9.0.x'
 
     - name: Restore dependencies
-      run: dotnet restore **/*.csproj
+      run: dotnet restore src/Elisoft.Slack/Elisoft.Slack.csproj
 
     - name: Build
-      run: dotnet build **/*.csproj --configuration Release --no-restore
+      run: dotnet build src/Elisoft.Slack/Elisoft.Slack.csproj --configuration Release --no-restore
 
     - name: Pack
-      run: dotnet pack **/*.csproj --configuration Release --no-build --output .
+      run: dotnet pack src/Elisoft.Slack/Elisoft.Slack.csproj --configuration Release --no-build --output .
 
     - name: Push to NuGet
       run: dotnet nuget push *.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
