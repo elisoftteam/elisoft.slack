@@ -21,6 +21,9 @@ jobs:
     - name: Build
       run: dotnet build src/Elisoft.Slack/Elisoft.Slack.csproj --configuration Release --no-restore
 
+    - name: Run Tests
+      run: dotnet test src/Elisoft.Slack.Tests/Elisoft.Slack.Tests.csproj --configuration Release --no-build --verbosity normal
+
     - name: Pack
       run: dotnet pack src/Elisoft.Slack/Elisoft.Slack.csproj --configuration Release --no-build --output .
 
