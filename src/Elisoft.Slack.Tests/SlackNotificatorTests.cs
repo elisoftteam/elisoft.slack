@@ -1,0 +1,132 @@
+﻿using System.Net;
+using System.Text;
+using AutoFixture;
+using FakeItEasy;
+using Microsoft.Extensions.Logging;
+using Shouldly;
+
+namespace Elisoft.Slack.Tests
+{
+  [TestFixture]
+  public class SlackNotificatorTests
+  {
+    private Fixture _fixture;
+    private ILogger<SlackNotificator> _logger;
+
+    [SetUp]
+    public void SetUp()
+    {
+      _fixture = new Fixture();
+      _logger = A.Fake<ILogger<SlackNotificator>>();
+    }
+
+    [Test]
+    public async Task SendMessageAsync_WebhookUrlIsNull_ThrowsArgumentNullException()
+    {
+      // Arrange
+      var httpClient = CreateHttpClient(HttpStatusCode.OK);
+      var sut = new SlackNotificator(httpClient, _logger);
+
+      // Act & Assert
+      await Should.ThrowAsync<ArgumentNullException>(async () =>
+          await sut.SendMessageAsync(null!, "#channel", "msg"));
+    }
+
+    [Test]
+    public async Task SendMessageAsync_WebhookUrlIsInvalid_ThrowsArgumentException()
+    {
+      // Arrange
+      var httpClient = CreateHttpClient(HttpStatusCode.OK);
+      var sut = new SlackNotificator(httpClient, _logger);
+
+      // Act & Assert
+      await Should.ThrowAsync<ArgumentException>(async () =>
+          await sut.SendMessageAsync("not-a-url", "#channel", "msg"));
+    }
+
+    [Test]
+    public async Task SendMessageAsync_MessageTextIsEmpty_ThrowsArgumentException()
+    {
+      // Arrange
+      var httpClient = CreateHttpClient(HttpStatusCode.OK);
+      var sut = new SlackNotificator(httpClient, _logger);
+
+      // Act & Assert
+      await Should.ThrowAsync<ArgumentException>(async () =>
+          await sut.SendMessageAsync("https://example.com", "#channel", ""));
+    }
+
+    [Test]
+    public async Task SendMessageAsync_ResponseIsSuccess_ReturnsTrue()
+    {
+      // Arrange
+      var httpClient = CreateHttpClient(HttpStatusCode.OK);
+      var sut = new SlackNotificator(httpClient, _logger);
+      var url = "https://example.com";
+      var channel = "#channel";
+      var msg = _fixture.Create<string>();
+
+      // Act
+      var result = await sut.SendMessageAsync(url, channel, msg);
+
+      // Assert
+      result.ShouldBeTrue();
+    }
+
+    [Test]
+    public async Task SendMessageAsync_ResponseIsFailure_ReturnsFalse()
+    {
+      // Arrange
+      var httpClient = CreateHttpClient(HttpStatusCode.BadRequest);
+      var sut = new SlackNotificator(httpClient, _logger);
+      var url = "https://example.com";
+      var channel = "#channel";
+      var msg = _fixture.Create<string>();
+
+      // Act
+      var result = await sut.SendMessageAsync(url, channel, msg);
+
+      // Assert
+      result.ShouldBeFalse();
+    }
+
+    [Test]
+    public async Task SendMessageAsync_HttpClientThrowsException_ReturnsFalse()
+    {
+      // Arrange
+      var handler = A.Fake<HttpMessageHandler>();
+      A.CallTo(handler)
+          .Where(call => call.Method.Name == "SendAsync")
+          .WithReturnType<Task<HttpResponseMessage>>()
+          .ThrowsAsync(new HttpRequestException());
+
+      var httpClient = new HttpClient(handler);
+      var sut = new SlackNotificator(httpClient, _logger);
+      var url = "https://example.com";
+      var channel = "#channel";
+      var msg = _fixture.Create<string>();
+
+      // Act
+      var result = await sut.SendMessageAsync(url, channel, msg);
+
+      // Assert
+      result.ShouldBeFalse();
+    }
+
+    private static HttpClient CreateHttpClient(HttpStatusCode statusCode)
+    {
+      var handler = A.Fake<HttpMessageHandler>();
+
+      A.CallTo(handler)
+          .Where(call => call.Method.Name == "SendAsync")
+          .WithReturnType<Task<HttpResponseMessage>>()
+          .Returns(Task.FromResult(new HttpResponseMessage
+          {
+            StatusCode = statusCode,
+            Content = new StringContent("response", Encoding.UTF8)
+          }));
+
+      return new HttpClient(handler);
+    }
+  }
+}
