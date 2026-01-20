@@ -15,7 +15,7 @@ namespace Elisoft.Slack
       _logger = logger;
     }
 
-    public async Task<bool> SendMessageAsync(string webhookUrl, string channelName, string messageText)
+    public async Task<bool> SendMessageAsync(string webhookUrl, string messageText)
     {
       if (string.IsNullOrWhiteSpace(webhookUrl))
       {
@@ -38,7 +38,6 @@ namespace Elisoft.Slack
       var slackPayloadObject = new
       {
         text = messageText,
-        channel = channelName
       };
 
       var jsonPayload = JsonSerializer.Serialize(slackPayloadObject);
