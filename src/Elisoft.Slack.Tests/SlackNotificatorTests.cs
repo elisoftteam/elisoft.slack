@@ -29,7 +29,7 @@ namespace Elisoft.Slack.Tests
 
       // Act & Assert
       await Should.ThrowAsync<ArgumentNullException>(async () =>
-          await sut.SendMessageAsync(null!, "#channel", "msg"));
+          await sut.SendMessageAsync(null!,  "msg"));
     }
 
     [Test]
@@ -41,7 +41,7 @@ namespace Elisoft.Slack.Tests
 
       // Act & Assert
       await Should.ThrowAsync<ArgumentException>(async () =>
-          await sut.SendMessageAsync("not-a-url", "#channel", "msg"));
+          await sut.SendMessageAsync("not-a-url", "msg"));
     }
 
     [Test]
@@ -53,7 +53,7 @@ namespace Elisoft.Slack.Tests
 
       // Act & Assert
       await Should.ThrowAsync<ArgumentException>(async () =>
-          await sut.SendMessageAsync("https://example.com", "#channel", ""));
+          await sut.SendMessageAsync("https://example.com", ""));
     }
 
     [Test]
@@ -63,11 +63,10 @@ namespace Elisoft.Slack.Tests
       var httpClient = CreateHttpClient(HttpStatusCode.OK);
       var sut = new SlackNotificator(httpClient, _logger);
       var url = "https://example.com";
-      var channel = "#channel";
       var msg = _fixture.Create<string>();
 
       // Act
-      var result = await sut.SendMessageAsync(url, channel, msg);
+      var result = await sut.SendMessageAsync(url, msg);
 
       // Assert
       result.ShouldBeTrue();
@@ -84,7 +83,7 @@ namespace Elisoft.Slack.Tests
       var msg = _fixture.Create<string>();
 
       // Act
-      var result = await sut.SendMessageAsync(url, channel, msg);
+      var result = await sut.SendMessageAsync(url,  msg);
 
       // Assert
       result.ShouldBeFalse();
@@ -107,7 +106,7 @@ namespace Elisoft.Slack.Tests
       var msg = _fixture.Create<string>();
 
       // Act
-      var result = await sut.SendMessageAsync(url, channel, msg);
+      var result = await sut.SendMessageAsync(url, msg);
 
       // Assert
       result.ShouldBeFalse();
