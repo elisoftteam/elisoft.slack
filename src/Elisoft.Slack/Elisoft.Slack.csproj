@@ -6,7 +6,7 @@
     <Nullable>enable</Nullable>
 
 	<PackageId>Elisoft.Slack</PackageId>
-	<Version>1.0.1</Version>
+	<Version>1.0.2</Version>
 	<Authors>Elisoft Team</Authors>
 	<Company>Elisoft</Company>
 	<Description>A lightweight and simple library for sending notifications to Slack in .NET applications.</Description>

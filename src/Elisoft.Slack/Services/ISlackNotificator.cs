@@ -2,6 +2,6 @@
 {
   public interface ISlackNotificator
   {
-    Task<bool> SendMessageAsync(string webhookUrl, string channelName, string messageText);
+    Task<bool> SendMessageAsync(string webhookUrl, string messageText);
   }
 }
